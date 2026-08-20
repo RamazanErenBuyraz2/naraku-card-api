@@ -45,7 +45,6 @@ module.exports = async (req,res)=>{
 
 
 
-
     const bot =
         Number(req.query.botPing || 0);
 
@@ -66,7 +65,9 @@ module.exports = async (req,res)=>{
     // BACKGROUND
     // ===============================
 
+
     ctx.fillStyle="#0c0d10";
+
 
     ctx.fillRect(
         0,
@@ -74,6 +75,7 @@ module.exports = async (req,res)=>{
         900,
         270
     );
+
 
 
 
@@ -108,6 +110,7 @@ module.exports = async (req,res)=>{
 
 
 
+
     // ===============================
     // ICON
     // ===============================
@@ -119,6 +122,12 @@ module.exports = async (req,res)=>{
 
 
     ctx.fillStyle="#5865f2";
+
+
+    ctx.shadowColor="#5865f2";
+
+    ctx.shadowBlur=20;
+
 
 
     ctx.beginPath();
@@ -137,6 +146,11 @@ module.exports = async (req,res)=>{
 
 
 
+    ctx.shadowBlur=0;
+
+
+
+
 
     ctx.fillStyle="#ffffff";
 
@@ -152,7 +166,7 @@ module.exports = async (req,res)=>{
 
 
     ctx.fillText(
-        "PING",
+        "MS",
         iconX,
         iconY
     );
@@ -164,105 +178,13 @@ module.exports = async (req,res)=>{
 
 
 
-    // ===============================
-    // HEADER
-    // ===============================
-
-
-    ctx.textAlign="left";
-
-
-    ctx.fillStyle="#ffffff";
-
-
-    ctx.font =
-        "bold 38px DejaVuSans";
-
-
-    ctx.fillText(
-        "Ping Durumu",
-        200,
-        75
-    );
-
-
-
-
-
-    ctx.fillStyle="#8b93ad";
-
-
-    ctx.font =
-        "18px DejaVuSans";
-
-
-    ctx.fillText(
-        "Discord bağlantı gecikmesi",
-        200,
-        112
-    );
-
-
-
-
-
-
-
 
     // ===============================
-    // STATUS
+    // PING ROW
     // ===============================
 
 
-    ctx.fillStyle="#00e676";
-
-
-    ctx.beginPath();
-
-
-    ctx.arc(
-        760,
-        75,
-        7,
-        0,
-        Math.PI*2
-    );
-
-
-    ctx.fill();
-
-
-
-
-    ctx.fillStyle="#00e676";
-
-
-    ctx.font =
-        "bold 17px DejaVuSans";
-
-
-    ctx.textAlign="right";
-
-
-    ctx.fillText(
-        "ONLINE",
-        730,
-        75
-    );
-
-
-
-
-
-
-
-
-    // ===============================
-    // PING BAR
-    // ===============================
-
-
-    function drawPing(
+    function pingRow(
         y,
         title,
         value,
@@ -270,68 +192,26 @@ module.exports = async (req,res)=>{
     ){
 
 
-        const maxWidth = 380;
-
-
-
         ctx.textAlign="left";
 
 
-        ctx.fillStyle="#7c839b";
+        ctx.fillStyle="#ffffff";
 
 
         ctx.font =
-            "bold 14px DejaVuSans";
+            "bold 22px DejaVuSans";
 
 
         ctx.fillText(
             title,
-            200,
+            220,
             y
         );
 
 
 
 
-
-        ctx.fillStyle="#0d1117";
-
-
-        ctx.beginPath();
-
-
-        ctx.roundRect(
-            200,
-            y+12,
-            maxWidth,
-            14,
-            7
-        );
-
-
-        ctx.fill();
-
-
-
-
-
-
-        let percent =
-            Math.min(
-                1,
-                value / 300
-            );
-
-
-
-        let width =
-            Math.max(
-                10,
-                maxWidth * percent
-            );
-
-
-
+        // durum noktası
 
 
         ctx.fillStyle=color;
@@ -340,17 +220,16 @@ module.exports = async (req,res)=>{
         ctx.beginPath();
 
 
-        ctx.roundRect(
-            200,
-            y+12,
-            width,
-            14,
-            7
+        ctx.arc(
+            500,
+            y-6,
+            7,
+            0,
+            Math.PI*2
         );
 
 
         ctx.fill();
-
 
 
 
@@ -364,14 +243,13 @@ module.exports = async (req,res)=>{
 
 
         ctx.font =
-            "bold 18px DejaVuSans";
-
+            "bold 28px DejaVuSans";
 
 
         ctx.fillText(
             value + " MS",
-            805,
-            y+15
+            800,
+            y
         );
 
 
@@ -384,29 +262,41 @@ module.exports = async (req,res)=>{
 
 
 
-    drawPing(
-        145,
+    pingRow(
+        105,
         "BOT PING",
         bot,
-        "#ff9800"
+        bot < 100
+            ? "#00e676"
+            : bot < 200
+                ? "#ff9800"
+                : "#ff3d3d"
     );
 
 
 
-    drawPing(
-        175,
+    pingRow(
+        155,
         "MESSAGE PING",
         msg,
-        "#5865f2"
+        msg < 100
+            ? "#00e676"
+            : msg < 200
+                ? "#ff9800"
+                : "#ff3d3d"
     );
 
 
 
-    drawPing(
+    pingRow(
         205,
         "API PING",
         api,
-        "#00e676"
+        api < 100
+            ? "#00e676"
+            : api < 200
+                ? "#ff9800"
+                : "#ff3d3d"
     );
 
 
