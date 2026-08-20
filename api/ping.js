@@ -3,7 +3,6 @@ const {
 } = require("@napi-rs/canvas");
 
 
-
 module.exports = async (req,res)=>{
 
 
@@ -46,8 +45,9 @@ module.exports = async (req,res)=>{
 
 
 
+
     // =========================
-    // CARD GLOW
+    // CARD
     // =========================
 
 
@@ -75,27 +75,30 @@ module.exports = async (req,res)=>{
 
 
 
+
+    ctx.textBaseline="middle";
+
+
+
+
     // =========================
     // HEADER
     // =========================
 
 
-    ctx.textBaseline="middle";
+    ctx.textAlign="left";
 
 
     ctx.fillStyle="#ffffff";
 
     ctx.font=
-        "bold 38px Arial";
-
-
-    ctx.textAlign="left";
+        "bold 32px Arial";
 
 
     ctx.fillText(
-        "Naraku Network Monitor",
+        "Ping Durumu",
         70,
-        75
+        70
     );
 
 
@@ -103,19 +106,23 @@ module.exports = async (req,res)=>{
     ctx.fillStyle="#8b93ad";
 
     ctx.font=
-        "18px Arial";
+        "17px Arial";
 
 
     ctx.fillText(
-        "Discord bağlantı durumu",
+        "Discord servis gecikmeleri",
         70,
-        112
+        105
     );
 
 
 
 
-    // STATUS DOT
+
+
+    // =========================
+    // STATUS
+    // =========================
 
 
     ctx.fillStyle="#00e676";
@@ -123,8 +130,8 @@ module.exports = async (req,res)=>{
     ctx.beginPath();
 
     ctx.arc(
-        780,
-        80,
+        790,
+        70,
         8,
         0,
         Math.PI*2
@@ -134,58 +141,70 @@ module.exports = async (req,res)=>{
 
 
 
+    ctx.textAlign="right";
+
     ctx.fillStyle="#00e676";
 
     ctx.font=
         "bold 16px Arial";
 
 
-    ctx.textAlign="right";
-
-
     ctx.fillText(
         "ONLINE",
-        750,
-        80
+        770,
+        70
     );
 
 
 
 
+
+
     // =========================
-    // BOX FUNCTION
+    // PING COLOR
     // =========================
 
 
-    function pingBox(
-        x,
+    function getColor(ms){
+
+        if(ms <= 100)
+            return "#00e676";
+
+
+        if(ms <= 250)
+            return "#ffb300";
+
+
+        return "#ff3d3d";
+
+    }
+
+
+
+
+
+
+
+    // =========================
+    // STATUS ROW
+    // =========================
+
+
+    function statusLine(
+        y,
         title,
-        value,
-        color
+        value
     ){
 
 
-        ctx.fillStyle="#181c27";
-
-
-        ctx.beginPath();
-
-        ctx.roundRect(
-            x,
-            150,
-            220,
-            65,
-            14
-        );
-
-        ctx.fill();
+        const color =
+            getColor(value);
 
 
 
-        // title
+        // TITLE
 
         ctx.textAlign="left";
-
 
         ctx.fillStyle="#8f96ad";
 
@@ -195,26 +214,81 @@ module.exports = async (req,res)=>{
 
         ctx.fillText(
             title,
-            x+18,
-            172
+            75,
+            y
         );
 
 
 
-        // value
 
+
+        // MS
+
+        ctx.textAlign="right";
 
         ctx.fillStyle=color;
 
         ctx.font=
-            "bold 28px Arial";
+            "bold 20px Arial";
 
 
         ctx.fillText(
             value+" MS",
-            x+18,
-            202
+            820,
+            y
         );
+
+
+
+
+
+        // BAR BACK
+
+        ctx.fillStyle="#181c27";
+
+        ctx.beginPath();
+
+        ctx.roundRect(
+            75,
+            y+18,
+            745,
+            8,
+            8
+        );
+
+        ctx.fill();
+
+
+
+
+
+        // BAR VALUE
+
+        let width =
+            Math.min(
+                745,
+                Math.max(
+                    40,
+                    value * 2.5
+                )
+            );
+
+
+
+        ctx.fillStyle=color;
+
+
+        ctx.beginPath();
+
+        ctx.roundRect(
+            75,
+            y+18,
+            width,
+            8,
+            8
+        );
+
+        ctx.fill();
 
 
 
@@ -223,54 +297,40 @@ module.exports = async (req,res)=>{
 
 
 
-    pingBox(
-        70,
-        "BOT PING",
-        bot,
-        "#ff9800"
+
+
+
+    statusLine(
+        135,
+        "BOT Gecikmesi",
+        bot
     );
 
 
-    pingBox(
-        340,
-        "MESSAGE PING",
-        msg,
-        "#5865f2"
+
+    statusLine(
+        175,
+        "Mesaj Gecikmesi",
+        msg
     );
 
 
-    pingBox(
-        610,
-        "API PING",
-        api,
-        "#00e676"
+
+    statusLine(
+        215,
+        "API Gecikmesi",
+        api
     );
+
+
+
 
 
 
 
     // =========================
-    // FOOTER
+    // RESPONSE
     // =========================
-
-
-    ctx.textAlign="right";
-
-
-    ctx.fillStyle="#656b80";
-
-    ctx.font=
-        "15px Arial";
-
-
-    ctx.fillText(
-        "Automatic monitoring system",
-        820,
-        235
-    );
-
-
-
 
 
     res.setHeader(
@@ -288,5 +348,6 @@ module.exports = async (req,res)=>{
     res.send(
         canvas.toBuffer("image/png")
     );
+
 
 };
