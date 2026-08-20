@@ -59,10 +59,10 @@ module.exports = async (req,res)=>{
 
 
 
+
     // ===============================
     // BACKGROUND
     // ===============================
-
 
     ctx.fillStyle="#0c0d10";
 
@@ -76,13 +76,12 @@ module.exports = async (req,res)=>{
 
 
 
+
     // ===============================
     // CARD
     // ===============================
 
-
     ctx.fillStyle="#12141d";
-
 
     ctx.beginPath();
 
@@ -99,17 +98,12 @@ module.exports = async (req,res)=>{
 
 
 
+
     // ===============================
     // ICON
     // ===============================
 
-
-    const iconX = 115;
-    const iconY = 135;
-
-
     ctx.save();
-
 
     ctx.shadowColor="#5865f2";
     ctx.shadowBlur=25;
@@ -121,8 +115,8 @@ module.exports = async (req,res)=>{
     ctx.beginPath();
 
     ctx.arc(
-        iconX,
-        iconY,
+        120,
+        135,
         58,
         0,
         Math.PI*2
@@ -138,7 +132,7 @@ module.exports = async (req,res)=>{
     ctx.fillStyle="#fff";
 
     ctx.font=
-        "bold 32px DejaVuSans";
+        "bold 34px DejaVuSans";
 
 
     ctx.textAlign="center";
@@ -148,9 +142,10 @@ module.exports = async (req,res)=>{
 
     ctx.fillText(
         "MS",
-        iconX,
-        iconY
+        120,
+        135
     );
+
 
 
 
@@ -172,34 +167,36 @@ module.exports = async (req,res)=>{
 
     ctx.fillText(
         "Ping",
-        200,
-        80
+        210,
+        75
     );
 
 
 
-    ctx.fillStyle="#7c839b";
+    ctx.fillStyle="#8b93ad";
 
     ctx.font=
         "18px DejaVuSans";
 
 
     ctx.fillText(
-        "Gecikme değerleri",
-        200,
-        112
+        "Sunucu gecikme değerleri",
+        210,
+        110
     );
 
 
 
 
 
+
+
     // ===============================
-    // PING ITEM
+    // PING CARD
     // ===============================
 
 
-    function pingItem(
+    function drawPing(
         y,
         title,
         value,
@@ -207,10 +204,54 @@ module.exports = async (req,res)=>{
     ){
 
 
+        // container
+
+        ctx.fillStyle="#181c27";
+
+
+        ctx.beginPath();
+
+        ctx.roundRect(
+            210,
+            y,
+            580,
+            38,
+            10
+        );
+
+        ctx.fill();
+
+
+
+
+        // küçük durum ışığı
+
+
+        ctx.fillStyle=color;
+
+
+        ctx.beginPath();
+
+        ctx.arc(
+            235,
+            y+19,
+            6,
+            0,
+            Math.PI*2
+        );
+
+        ctx.fill();
+
+
+
+
+        // başlık
+
+
         ctx.textAlign="left";
 
 
-        ctx.fillStyle="#8b93ad";
+        ctx.fillStyle="#c5cada";
 
         ctx.font=
             "bold 15px DejaVuSans";
@@ -218,57 +259,15 @@ module.exports = async (req,res)=>{
 
         ctx.fillText(
             title,
-            200,
-            y
+            255,
+            y+20
         );
 
 
 
-        // küçük noktalar
-
-        const total = 8;
-
-        const active =
-            Math.min(
-                total,
-                Math.max(
-                    1,
-                    Math.floor(
-                        value / 50
-                    )
-                )
-            );
 
 
-
-        for(
-            let i = 0;
-            i < total;
-            i++
-        ){
-
-            ctx.fillStyle =
-                i < active
-                ? color
-                : "#242938";
-
-
-            ctx.beginPath();
-
-            ctx.roundRect(
-                320 + (i * 38),
-                y - 10,
-                28,
-                10,
-                5
-            );
-
-            ctx.fill();
-
-        }
-
-
-
+        // değer
 
 
         ctx.textAlign="right";
@@ -277,14 +276,15 @@ module.exports = async (req,res)=>{
         ctx.fillStyle="#ffffff";
 
         ctx.font=
-            "bold 20px DejaVuSans";
+            "bold 18px DejaVuSans";
 
 
         ctx.fillText(
-            value + " MS",
-            805,
-            y
+            value+" MS",
+            770,
+            y+20
         );
+
 
     }
 
@@ -292,24 +292,24 @@ module.exports = async (req,res)=>{
 
 
 
-    pingItem(
-        150,
+    drawPing(
+        140,
         "BOT PING",
         bot,
         "#ff9800"
     );
 
 
-    pingItem(
-        185,
+    drawPing(
+        183,
         "MESSAGE PING",
         msg,
         "#5865f2"
     );
 
 
-    pingItem(
-        220,
+    drawPing(
+        226,
         "API PING",
         api,
         "#00e676"
