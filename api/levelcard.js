@@ -1,185 +1,338 @@
 const { createCanvas, loadImage } = require("@napi-rs/canvas");
 
+function roundRect(ctx, x, y, w, h, r, color) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.roundRect(x, y, w, h, r);
+    ctx.fill();
+}
+
+function clamp(num, min, max) {
+    return Math.min(Math.max(num, min), max);
+}
+
 module.exports = async (req, res) => {
-    try {
 
-        const username = req.query.username || "Unknown";
-        const avatar = req.query.avatar || "";
+    const username = req.query.username || "Unknown";
+    const avatar = req.query.avatar || "";
 
-        const level = Number(req.query.level || 1);
-        const xp = Number(req.query.xp || 0);
-        const nextXP = Number(req.query.nextXP || 100);
-
-        const canvas = createCanvas(900, 280);
-        const ctx = canvas.getContext("2d");
+    const level = Math.max(1, Number(req.query.level || 1));
+    const xp = Math.max(0, Number(req.query.xp || 0));
+    const nextXP = Math.max(1, Number(req.query.nextXP || 100));
+    const rank = Math.max(1, Number(req.query.rank || 1));
 
 
-        // BACKGROUND
-        ctx.fillStyle = "#07080C";
-        ctx.fillRect(0, 0, 900, 280);
+    const WIDTH = 900;
+    const HEIGHT = 280;
 
 
-        // CARD
-        ctx.fillStyle = "#12141A";
-        ctx.beginPath();
-        ctx.roundRect(20, 20, 860, 240, 20);
-        ctx.fill();
+    const canvas = createCanvas(WIDTH, HEIGHT);
+    const ctx = canvas.getContext("2d");
 
 
-        // AVATAR
-        if (avatar) {
-            try {
+    // BACKGROUND
 
-                const img = await loadImage(avatar);
-
-                ctx.save();
-
-                ctx.beginPath();
-                ctx.arc(
-                    100,
-                    140,
-                    55,
-                    0,
-                    Math.PI * 2
-                );
-
-                ctx.clip();
-
-                ctx.drawImage(
-                    img,
-                    45,
-                    85,
-                    110,
-                    110
-                );
-
-                ctx.restore();
-
-            } catch {}
-        }
-
-
-        // USERNAME
-        ctx.fillStyle = "#ffffff";
-        ctx.font = "32px sans-serif";
-
-        ctx.fillText(
-            username,
-            200,
-            90
-        );
-
-
-        // LEVEL TEXT
-        ctx.fillStyle = "#7B82FF";
-        ctx.font = "24px sans-serif";
-
-        ctx.fillText(
-            `SEVİYE ${level}`,
-            700,
-            90
-        );
-
-
-        // XP TEXT
-
-        ctx.fillStyle = "#AEB4C0";
-        ctx.font = "20px sans-serif";
-
-        ctx.fillText(
-            `${xp} / ${nextXP} XP`,
-            200,
-            135
-        );
-
-
-        // PROGRESS BAR BACKGROUND
-
-        ctx.fillStyle = "#242731";
-
-        ctx.beginPath();
-
-        ctx.roundRect(
-            200,
-            160,
-            600,
-            25,
-            12
-        );
-
-        ctx.fill();
+    ctx.fillStyle = "#08090d";
+    ctx.fillRect(0,0,WIDTH,HEIGHT);
 
 
 
-        // PROGRESS BAR
+    // OUTER CARD
 
-        const progress = Math.min(
-            1,
-            Math.max(
+    roundRect(
+        ctx,
+        25,
+        25,
+        850,
+        230,
+        25,
+        "#252938"
+    );
+
+
+    // INNER CARD
+
+    roundRect(
+        ctx,
+        35,
+        35,
+        830,
+        210,
+        20,
+        "#11131a"
+    );
+
+
+
+    // AVATAR
+
+    const avatarX = 55;
+    const avatarY = 75;
+    const size = 110;
+
+
+    ctx.beginPath();
+    ctx.arc(
+        avatarX + size/2,
+        avatarY + size/2,
+        62,
+        0,
+        Math.PI*2
+    );
+
+    ctx.fillStyle="#ff9d00";
+    ctx.shadowColor="#ff9d00";
+    ctx.shadowBlur=20;
+    ctx.fill();
+
+
+    ctx.shadowBlur=0;
+
+
+    if(avatar){
+
+        try{
+
+            const img = await loadImage(avatar);
+
+            ctx.save();
+
+            ctx.beginPath();
+
+            ctx.arc(
+                avatarX + size/2,
+                avatarY + size/2,
+                55,
                 0,
-                xp / nextXP
-            )
-        );
+                Math.PI*2
+            );
+
+            ctx.clip();
 
 
-        ctx.fillStyle = "#5B63FF";
-
-        ctx.beginPath();
-
-        ctx.roundRect(
-            200,
-            160,
-            600 * progress,
-            25,
-            12
-        );
-
-        ctx.fill();
+            ctx.drawImage(
+                img,
+                avatarX,
+                avatarY,
+                size,
+                size
+            );
 
 
-
-        // NEXT LEVEL
-
-        ctx.fillStyle = "#8E95A5";
-        ctx.font = "18px sans-serif";
-
-        ctx.fillText(
-            `Sonraki seviye için ${Math.max(nextXP - xp,0)} XP gerekli`,
-            200,
-            220
-        );
+            ctx.restore();
 
 
-        // FOOTER
-
-        ctx.fillStyle = "#5865F2";
-        ctx.font = "16px sans-serif";
-
-        ctx.fillText(
-            "Naraku Level System",
-            700,
-            230
-        );
-
-
-
-        res.setHeader(
-            "Content-Type",
-            "image/png"
-        );
-
-        res.send(
-            canvas.toBuffer("image/png")
-        );
-
-
-    } catch (err) {
-
-        console.error(err);
-
-        res.status(500).json({
-            error: "Card generation failed"
-        });
+        }catch{}
 
     }
+
+
+
+
+    // USERNAME
+
+    ctx.fillStyle="#ffffff";
+    ctx.font="32px sans-serif";
+
+    ctx.fillText(
+        username,
+        200,
+        90
+    );
+
+
+
+    // RANK
+
+    ctx.fillStyle="#9aa0b5";
+    ctx.font="20px sans-serif";
+
+    ctx.fillText(
+        `SIRA #${rank}`,
+        700,
+        65
+    );
+
+
+
+    // LEVEL
+
+    ctx.fillStyle="#ff9d00";
+    ctx.font="26px sans-serif";
+
+    ctx.fillText(
+        `SEVİYE ${level}`,
+        700,
+        105
+    );
+
+
+
+
+    // XP BAR
+
+    const barX = 200;
+    const barY = 150;
+    const barW = 600;
+    const barH = 28;
+
+
+    roundRect(
+        ctx,
+        barX,
+        barY,
+        barW,
+        barH,
+        15,
+        "#292d39"
+    );
+
+
+
+    const progress = clamp(
+        xp / nextXP,
+        0,
+        1
+    );
+
+
+    const fillW = Math.max(
+        10,
+        barW * progress
+    );
+
+
+
+    // GRADIENT XP
+
+    const gradient =
+        ctx.createLinearGradient(
+            barX,
+            0,
+            barX + barW,
+            0
+        );
+
+
+    gradient.addColorStop(
+        0,
+        "#ff8a00"
+    );
+
+    gradient.addColorStop(
+        0.5,
+        "#ffb000"
+    );
+
+    gradient.addColorStop(
+        1,
+        "#9b5cff"
+    );
+
+
+
+    ctx.fillStyle = gradient;
+
+    ctx.beginPath();
+
+    ctx.roundRect(
+        barX,
+        barY,
+        fillW,
+        barH,
+        15
+    );
+
+    ctx.fill();
+
+
+
+    // DRAGON ICON
+
+    const dragonX =
+        barX + fillW;
+
+    const dragonY =
+        barY + barH/2;
+
+
+    ctx.fillStyle="#ffffff";
+
+    ctx.beginPath();
+
+    ctx.arc(
+        dragonX,
+        dragonY,
+        12,
+        0,
+        Math.PI*2
+    );
+
+    ctx.fill();
+
+
+    ctx.fillStyle="#ff8a00";
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        dragonX-8,
+        dragonY-8
+    );
+
+    ctx.lineTo(
+        dragonX-22,
+        dragonY-18
+    );
+
+    ctx.lineTo(
+        dragonX-15,
+        dragonY+5
+    );
+
+    ctx.fill();
+
+
+
+
+    // XP TEXT
+
+    ctx.fillStyle="#ffffff";
+
+    ctx.font="22px sans-serif";
+
+
+    ctx.fillText(
+        `${xp.toLocaleString()} / ${nextXP.toLocaleString()} XP`,
+        200,
+        220
+    );
+
+
+
+    // NEXT LEVEL
+
+    ctx.fillStyle="#9aa0b5";
+
+    ctx.font="18px sans-serif";
+
+
+    ctx.fillText(
+        `Sonraki seviye için ${Math.max(nextXP-xp,0)} XP gerekli`,
+        500,
+        220
+    );
+
+
+
+    res.setHeader(
+        "Content-Type",
+        "image/png"
+    );
+
+
+    res.send(
+        canvas.toBuffer("image/png")
+    );
+
 };
