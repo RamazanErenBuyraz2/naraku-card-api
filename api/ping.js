@@ -1,41 +1,13 @@
 const {
-    createCanvas,
-    GlobalFonts
+    createCanvas
 } = require("@napi-rs/canvas");
-
-const path = require("path");
-
-
-// ===============================
-// FONT
-// ===============================
-
-try {
-
-    GlobalFonts.registerFromPath(
-        path.join(
-            process.cwd(),
-            "fonts",
-            "DejaVuSans.ttf"
-        ),
-        "DejaVuSans"
-    );
-
-} catch (err) {
-
-    console.log(
-        "Font yüklenemedi:",
-        err.message
-    );
-
-}
 
 
 // ===============================
 // API
 // ===============================
 
-module.exports = async (req,res)=>{
+module.exports = async (req, res) => {
 
 
     const canvas =
@@ -50,26 +22,14 @@ module.exports = async (req,res)=>{
 
 
 
-    // ===============================
-    // VALUES
-    // ===============================
-
     const botPing =
-        Number(
-            req.query.botPing || 0
-        );
-
+        Number(req.query.botPing || 0);
 
     const messagePing =
-        Number(
-            req.query.messagePing || 0
-        );
-
+        Number(req.query.messagePing || 0);
 
     const apiPing =
-        Number(
-            req.query.apiPing || 0
-        );
+        Number(req.query.apiPing || 0);
 
 
 
@@ -77,7 +37,7 @@ module.exports = async (req,res)=>{
     // BACKGROUND
     // ===============================
 
-    ctx.fillStyle="#08090d";
+    ctx.fillStyle = "#08090d";
 
     ctx.fillRect(
         0,
@@ -92,7 +52,7 @@ module.exports = async (req,res)=>{
     // CARD
     // ===============================
 
-    ctx.fillStyle="#12141d";
+    ctx.fillStyle = "#12141d";
 
     ctx.beginPath();
 
@@ -109,19 +69,19 @@ module.exports = async (req,res)=>{
 
 
     // ===============================
-    // TITLE
+    // TEXT TEST
     // ===============================
 
-    ctx.textBaseline="middle";
+    ctx.textBaseline = "middle";
 
 
-    ctx.fillStyle="#ffffff";
 
-    ctx.font=
-        "bold 38px DejaVuSans";
+    ctx.fillStyle = "#ffffff";
 
+    ctx.font =
+        "bold 40px Arial";
 
-    ctx.textAlign="left";
+    ctx.textAlign = "left";
 
 
     ctx.fillText(
@@ -132,48 +92,49 @@ module.exports = async (req,res)=>{
 
 
 
-    // ===============================
-    // STATUS
-    // ===============================
+    ctx.fillStyle="#7d8599";
 
-    ctx.fillStyle="#54ff8b";
-
-    ctx.font=
-        "bold 18px DejaVuSans";
+    ctx.font =
+        "20px Arial";
 
 
     ctx.fillText(
-        "● Sistem aktif",
+        "Discord bağlantı değerleri",
         70,
         110
     );
 
 
 
+
+
     // ===============================
-    // BOX FUNCTION
+    // BOX
     // ===============================
 
 
-    function box(
+    function drawBox(
         x,
-        y,
         title,
         value,
         color
     ){
 
+
         ctx.fillStyle="#1b1f2b";
+
 
         ctx.beginPath();
 
+
         ctx.roundRect(
             x,
-            y,
+            145,
             220,
-            80,
-            14
+            70,
+            15
         );
+
 
         ctx.fill();
 
@@ -181,8 +142,8 @@ module.exports = async (req,res)=>{
 
         ctx.fillStyle="#9aa0b5";
 
-        ctx.font=
-            "bold 16px DejaVuSans";
+        ctx.font =
+            "bold 15px Arial";
 
 
         ctx.textAlign="left";
@@ -191,7 +152,7 @@ module.exports = async (req,res)=>{
         ctx.fillText(
             title,
             x+20,
-            y+25
+            170
         );
 
 
@@ -199,14 +160,14 @@ module.exports = async (req,res)=>{
         ctx.fillStyle=color;
 
 
-        ctx.font=
-            "bold 28px DejaVuSans";
+        ctx.font =
+            "bold 28px Arial";
 
 
         ctx.fillText(
-            value+" MS",
+            value + " MS",
             x+20,
-            y+55
+            200
         );
 
 
@@ -214,36 +175,30 @@ module.exports = async (req,res)=>{
 
 
 
-    // ===============================
-    // PING BOXES
-    // ===============================
 
-
-    box(
+    drawBox(
         70,
-        145,
         "BOT PING",
         botPing,
         "#ff9d00"
     );
 
 
-    box(
+    drawBox(
         340,
-        145,
         "MESAJ PING",
         messagePing,
         "#5865ff"
     );
 
 
-    box(
+    drawBox(
         610,
-        145,
         "API PING",
         apiPing,
         "#00e676"
     );
+
 
 
 
@@ -253,10 +208,10 @@ module.exports = async (req,res)=>{
     // ===============================
 
 
-    ctx.fillStyle="#777d95";
+    ctx.fillStyle="#777";
 
-    ctx.font=
-        "16px DejaVuSans";
+    ctx.font =
+        "16px Arial";
 
 
     ctx.textAlign="right";
@@ -265,8 +220,9 @@ module.exports = async (req,res)=>{
     ctx.fillText(
         "Naraku Network Monitor",
         820,
-        220
+        235
     );
+
 
 
 
@@ -283,7 +239,7 @@ module.exports = async (req,res)=>{
 
     res.setHeader(
         "Cache-Control",
-        "no-cache"
+        "no-store, no-cache, must-revalidate"
     );
 
 
