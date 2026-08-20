@@ -1,68 +1,58 @@
-const { 
+const {
     createCanvas,
-    registerFont
+    GlobalFonts
 } = require("@napi-rs/canvas");
 
 const path = require("path");
 
 
+// ===============================
 // FONT
+// ===============================
 
 try {
 
-    registerFont(
+    GlobalFonts.registerFromPath(
         path.join(
             process.cwd(),
             "fonts",
             "DejaVuSans.ttf"
         ),
-        {
-            family:"DejaVuSans"
-        }
+        "DejaVuSans"
     );
 
-} catch(e){
+} catch (err) {
 
     console.log(
-        "Font yüklenemedi",
-        e
+        "Font yüklenemedi:",
+        err.message
     );
 
 }
 
 
+// ===============================
+// API
+// ===============================
 
-function roundRect(
-    ctx,
-    x,
-    y,
-    w,
-    h,
-    r,
-    color
-){
+module.exports = async (req,res)=>{
 
-    ctx.fillStyle=color;
 
-    ctx.beginPath();
+    const canvas =
+        createCanvas(
+            900,
+            270
+        );
 
-    ctx.roundRect(
-        x,
-        y,
-        w,
-        h,
-        r
-    );
 
-    ctx.fill();
-
-}
+    const ctx =
+        canvas.getContext("2d");
 
 
 
-
-module.exports = async(req,res)=>{
-
+    // ===============================
+    // VALUES
+    // ===============================
 
     const botPing =
         Number(
@@ -83,19 +73,9 @@ module.exports = async(req,res)=>{
 
 
 
-    const canvas =
-        createCanvas(
-            900,
-            280
-        );
-
-
-    const ctx =
-        canvas.getContext("2d");
-
-
-
+    // ===============================
     // BACKGROUND
+    // ===============================
 
     ctx.fillStyle="#08090d";
 
@@ -103,42 +83,42 @@ module.exports = async(req,res)=>{
         0,
         0,
         900,
-        280
+        270
     );
 
 
 
+    // ===============================
     // CARD
+    // ===============================
 
-    roundRect(
-        ctx,
+    ctx.fillStyle="#12141d";
+
+    ctx.beginPath();
+
+    ctx.roundRect(
+        30,
         25,
-        25,
-        850,
-        230,
-        25,
-        "#252938"
+        840,
+        220,
+        20
     );
 
-
-    roundRect(
-        ctx,
-        35,
-        35,
-        830,
-        210,
-        20,
-        "#11131a"
-    );
+    ctx.fill();
 
 
 
+    // ===============================
     // TITLE
+    // ===============================
+
+    ctx.textBaseline="middle";
+
 
     ctx.fillStyle="#ffffff";
 
-    ctx.font =
-        "bold 36px DejaVuSans";
+    ctx.font=
+        "bold 38px DejaVuSans";
 
 
     ctx.textAlign="left";
@@ -147,168 +127,152 @@ module.exports = async(req,res)=>{
     ctx.fillText(
         "Naraku Ping",
         70,
-        85
+        75
     );
 
 
 
-    ctx.fillStyle="#8d93a8";
+    // ===============================
+    // STATUS
+    // ===============================
 
-    ctx.font =
-        "20px DejaVuSans";
+    ctx.fillStyle="#54ff8b";
+
+    ctx.font=
+        "bold 18px DejaVuSans";
 
 
     ctx.fillText(
-        "Network bağlantı sonuçları",
+        "● Sistem aktif",
         70,
-        115
+        110
     );
 
 
 
-    const data=[
-
-        {
-            name:"BOT PING",
-            value:botPing,
-            y:155
-        },
-
-        {
-            name:"MESAJ PING",
-            value:messagePing,
-            y:195
-        },
-
-        {
-            name:"API PING",
-            value:apiPing,
-            y:235
-        }
-
-    ];
+    // ===============================
+    // BOX FUNCTION
+    // ===============================
 
 
-
-    for(
-        const item of data
+    function box(
+        x,
+        y,
+        title,
+        value,
+        color
     ){
 
+        ctx.fillStyle="#1b1f2b";
 
-        ctx.fillStyle="#ffffff";
+        ctx.beginPath();
 
-        ctx.font =
-            "bold 18px DejaVuSans";
-
-
-        ctx.fillText(
-            item.name,
-            70,
-            item.y
+        ctx.roundRect(
+            x,
+            y,
+            220,
+            80,
+            14
         );
 
+        ctx.fill();
 
 
-        ctx.fillStyle="#ff9d00";
 
-        ctx.textAlign="right";
+        ctx.fillStyle="#9aa0b5";
 
-
-        ctx.font =
-            "bold 20px DejaVuSans";
-
-
-        ctx.fillText(
-            item.value+" MS",
-            805,
-            item.y
-        );
-
+        ctx.font=
+            "bold 16px DejaVuSans";
 
 
         ctx.textAlign="left";
 
 
-
-        // BAR
-
-
-        roundRect(
-            ctx,
-            250,
-            item.y-17,
-            400,
-            12,
-            8,
-            "#252a35"
+        ctx.fillText(
+            title,
+            x+20,
+            y+25
         );
 
 
 
-        const percent =
-            Math.min(
-                item.value / 500,
-                1
-            );
+        ctx.fillStyle=color;
 
 
-        const width =
-            Math.max(
-                10,
-                400 * percent
-            );
+        ctx.font=
+            "bold 28px DejaVuSans";
 
 
-
-        const gradient =
-            ctx.createLinearGradient(
-                250,
-                0,
-                650,
-                0
-            );
-
-
-        gradient.addColorStop(
-            0,
-            "#ff7b00"
+        ctx.fillText(
+            value+" MS",
+            x+20,
+            y+55
         );
 
-
-        gradient.addColorStop(
-            1,
-            "#ffcc00"
-        );
-
-
-
-        roundRect(
-            ctx,
-            250,
-            item.y-17,
-            width,
-            12,
-            8,
-            gradient
-        );
 
     }
 
 
 
+    // ===============================
+    // PING BOXES
+    // ===============================
 
-    ctx.fillStyle="#7c839b";
 
-    ctx.font =
+    box(
+        70,
+        145,
+        "BOT PING",
+        botPing,
+        "#ff9d00"
+    );
+
+
+    box(
+        340,
+        145,
+        "MESAJ PING",
+        messagePing,
+        "#5865ff"
+    );
+
+
+    box(
+        610,
+        145,
+        "API PING",
+        apiPing,
+        "#00e676"
+    );
+
+
+
+
+    // ===============================
+    // FOOTER
+    // ===============================
+
+
+    ctx.fillStyle="#777d95";
+
+    ctx.font=
         "16px DejaVuSans";
+
+
+    ctx.textAlign="right";
 
 
     ctx.fillText(
         "Naraku Network Monitor",
-        70,
-        225
+        820,
+        220
     );
 
+
+
+    // ===============================
+    // RESPONSE
+    // ===============================
 
 
     res.setHeader(
@@ -317,8 +281,15 @@ module.exports = async(req,res)=>{
     );
 
 
+    res.setHeader(
+        "Cache-Control",
+        "no-cache"
+    );
+
+
     res.send(
         canvas.toBuffer("image/png")
     );
+
 
 };
