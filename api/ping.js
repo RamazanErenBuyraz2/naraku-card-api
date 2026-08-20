@@ -59,10 +59,10 @@ module.exports = async (req,res)=>{
 
 
 
-
     // ===============================
     // BACKGROUND
     // ===============================
+
 
     ctx.fillStyle="#0c0d10";
 
@@ -76,16 +76,15 @@ module.exports = async (req,res)=>{
 
 
 
-
     // ===============================
     // CARD
     // ===============================
+
 
     ctx.fillStyle="#12141d";
 
 
     ctx.beginPath();
-
 
     ctx.roundRect(
         30,
@@ -95,16 +94,13 @@ module.exports = async (req,res)=>{
         18
     );
 
-
     ctx.fill();
 
 
 
 
-
-
     // ===============================
-    // LEFT ICON
+    // ICON
     // ===============================
 
 
@@ -112,43 +108,40 @@ module.exports = async (req,res)=>{
     const iconY = 135;
 
 
+    ctx.save();
+
+
+    ctx.shadowColor="#5865f2";
+    ctx.shadowBlur=25;
+
 
     ctx.fillStyle="#5865f2";
 
 
-    ctx.shadowColor="#5865f2";
-    ctx.shadowBlur=20;
-
-
     ctx.beginPath();
-
 
     ctx.arc(
         iconX,
         iconY,
         58,
         0,
-        Math.PI * 2
+        Math.PI*2
     );
-
 
     ctx.fill();
 
 
-    ctx.shadowBlur=0;
-
+    ctx.restore();
 
 
 
     ctx.fillStyle="#fff";
 
-
-    ctx.font =
-        "bold 34px DejaVuSans";
+    ctx.font=
+        "bold 32px DejaVuSans";
 
 
     ctx.textAlign="center";
-
 
     ctx.textBaseline="middle";
 
@@ -163,87 +156,135 @@ module.exports = async (req,res)=>{
 
 
 
-
-
     // ===============================
-    // METRIC FUNCTION
+    // TITLE
     // ===============================
 
 
-    function metric(
-        x,
+    ctx.textAlign="left";
+
+
+    ctx.fillStyle="#ffffff";
+
+    ctx.font=
+        "bold 38px DejaVuSans";
+
+
+    ctx.fillText(
+        "Ping",
+        200,
+        80
+    );
+
+
+
+    ctx.fillStyle="#7c839b";
+
+    ctx.font=
+        "18px DejaVuSans";
+
+
+    ctx.fillText(
+        "Gecikme değerleri",
+        200,
+        112
+    );
+
+
+
+
+
+    // ===============================
+    // PING ITEM
+    // ===============================
+
+
+    function pingItem(
+        y,
         title,
         value,
         color
     ){
 
 
-        ctx.textAlign="center";
-
-
-
-        // TITLE
+        ctx.textAlign="left";
 
 
         ctx.fillStyle="#8b93ad";
 
-
-        ctx.font =
-            "bold 16px DejaVuSans";
+        ctx.font=
+            "bold 15px DejaVuSans";
 
 
         ctx.fillText(
             title,
-            x,
-            95
+            200,
+            y
         );
 
 
 
+        // küçük noktalar
 
+        const total = 8;
 
-        // DOT
-
-
-        ctx.fillStyle=color;
-
-
-        ctx.beginPath();
-
-
-        ctx.arc(
-            x,
-            140,
-            10,
-            0,
-            Math.PI*2
-        );
-
-
-        ctx.fill();
+        const active =
+            Math.min(
+                total,
+                Math.max(
+                    1,
+                    Math.floor(
+                        value / 50
+                    )
+                )
+            );
 
 
 
+        for(
+            let i = 0;
+            i < total;
+            i++
+        ){
+
+            ctx.fillStyle =
+                i < active
+                ? color
+                : "#242938";
+
+
+            ctx.beginPath();
+
+            ctx.roundRect(
+                320 + (i * 38),
+                y - 10,
+                28,
+                10,
+                5
+            );
+
+            ctx.fill();
+
+        }
 
 
 
-        // VALUE
+
+
+        ctx.textAlign="right";
 
 
         ctx.fillStyle="#ffffff";
 
-
-        ctx.font =
-            "bold 30px DejaVuSans";
+        ctx.font=
+            "bold 20px DejaVuSans";
 
 
         ctx.fillText(
             value + " MS",
-            x,
-            195
+            805,
+            y
         );
-
-
 
     }
 
@@ -251,45 +292,28 @@ module.exports = async (req,res)=>{
 
 
 
-
-
-    metric(
-        330,
-        "BOT",
+    pingItem(
+        150,
+        "BOT PING",
         bot,
-        bot < 100
-            ? "#00e676"
-            : bot < 200
-                ? "#ff9800"
-                : "#ff3b3b"
+        "#ff9800"
     );
 
 
-
-    metric(
-        520,
-        "MESSAGE",
+    pingItem(
+        185,
+        "MESSAGE PING",
         msg,
-        msg < 100
-            ? "#00e676"
-            : msg < 200
-                ? "#ff9800"
-                : "#ff3b3b"
+        "#5865f2"
     );
 
 
-
-    metric(
-        710,
-        "API",
+    pingItem(
+        220,
+        "API PING",
         api,
-        api < 100
-            ? "#00e676"
-            : api < 200
-                ? "#ff9800"
-                : "#ff3b3b"
+        "#00e676"
     );
-
 
 
 
@@ -312,7 +336,6 @@ module.exports = async (req,res)=>{
         "Cache-Control",
         "no-cache"
     );
-
 
 
     res.send(
