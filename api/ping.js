@@ -62,14 +62,11 @@ module.exports = async (req,res)=>{
 
 
 
-
     // ===============================
     // BACKGROUND
     // ===============================
 
-
     ctx.fillStyle="#0c0d10";
-
 
     ctx.fillRect(
         0,
@@ -112,7 +109,7 @@ module.exports = async (req,res)=>{
 
 
     // ===============================
-    // ICON AREA
+    // ICON
     // ===============================
 
 
@@ -124,18 +121,13 @@ module.exports = async (req,res)=>{
     ctx.fillStyle="#5865f2";
 
 
-    ctx.shadowColor="#5865f2";
-
-    ctx.shadowBlur=20;
-
-
     ctx.beginPath();
 
 
     ctx.arc(
         iconX,
         iconY,
-        60,
+        58,
         0,
         Math.PI*2
     );
@@ -144,16 +136,13 @@ module.exports = async (req,res)=>{
     ctx.fill();
 
 
-    ctx.shadowBlur=0;
-
-
 
 
     ctx.fillStyle="#ffffff";
 
 
     ctx.font =
-        "bold 38px DejaVuSans";
+        "bold 34px DejaVuSans";
 
 
     ctx.textAlign="center";
@@ -163,7 +152,7 @@ module.exports = async (req,res)=>{
 
 
     ctx.fillText(
-        "MS",
+        "PING",
         iconX,
         iconY
     );
@@ -175,14 +164,12 @@ module.exports = async (req,res)=>{
 
 
 
-
     // ===============================
-    // TEXT
+    // HEADER
     // ===============================
 
 
     ctx.textAlign="left";
-
 
 
     ctx.fillStyle="#ffffff";
@@ -192,11 +179,27 @@ module.exports = async (req,res)=>{
         "bold 38px DejaVuSans";
 
 
-
     ctx.fillText(
         "Ping Durumu",
         200,
-        80
+        75
+    );
+
+
+
+
+
+    ctx.fillStyle="#8b93ad";
+
+
+    ctx.font =
+        "18px DejaVuSans";
+
+
+    ctx.fillText(
+        "Discord bağlantı gecikmesi",
+        200,
+        112
     );
 
 
@@ -204,44 +207,49 @@ module.exports = async (req,res)=>{
 
 
 
+
+
+    // ===============================
     // STATUS
+    // ===============================
 
 
-    ctx.textAlign="right";
+    ctx.fillStyle="#00e676";
+
+
+    ctx.beginPath();
+
+
+    ctx.arc(
+        760,
+        75,
+        7,
+        0,
+        Math.PI*2
+    );
+
+
+    ctx.fill();
+
+
 
 
     ctx.fillStyle="#00e676";
 
 
     ctx.font =
-        "bold 18px DejaVuSans";
+        "bold 17px DejaVuSans";
 
+
+    ctx.textAlign="right";
 
 
     ctx.fillText(
         "ONLINE",
-        805,
-        60
+        730,
+        75
     );
 
-
-
-
-
-
-    ctx.fillStyle="#ff9800";
-
-
-    ctx.font =
-        "bold 32px DejaVuSans";
-
-
-
-    ctx.fillText(
-        "DISCORD",
-        805,
-        100
-    );
 
 
 
@@ -254,12 +262,16 @@ module.exports = async (req,res)=>{
     // ===============================
 
 
-    function pingBar(
+    function drawPing(
         y,
         title,
         value,
         color
     ){
+
+
+        const maxWidth = 380;
+
 
 
         ctx.textAlign="left";
@@ -269,8 +281,7 @@ module.exports = async (req,res)=>{
 
 
         ctx.font =
-            "bold 16px DejaVuSans";
-
+            "bold 14px DejaVuSans";
 
 
         ctx.fillText(
@@ -278,6 +289,7 @@ module.exports = async (req,res)=>{
             200,
             y
         );
+
 
 
 
@@ -290,10 +302,10 @@ module.exports = async (req,res)=>{
 
         ctx.roundRect(
             200,
-            y+18,
-            500,
-            22,
-            6
+            y+12,
+            maxWidth,
+            14,
+            7
         );
 
 
@@ -303,14 +315,22 @@ module.exports = async (req,res)=>{
 
 
 
+
+        let percent =
+            Math.min(
+                1,
+                value / 300
+            );
+
+
+
         let width =
             Math.max(
-                15,
-                Math.min(
-                    500,
-                    value * 3
-                )
+                10,
+                maxWidth * percent
             );
+
+
 
 
 
@@ -322,14 +342,15 @@ module.exports = async (req,res)=>{
 
         ctx.roundRect(
             200,
-            y+18,
+            y+12,
             width,
-            22,
-            6
+            14,
+            7
         );
 
 
         ctx.fill();
+
 
 
 
@@ -343,14 +364,16 @@ module.exports = async (req,res)=>{
 
 
         ctx.font =
-            "bold 20px DejaVuSans";
+            "bold 18px DejaVuSans";
+
 
 
         ctx.fillText(
-            value+" MS",
+            value + " MS",
             805,
-            y+30
+            y+15
         );
+
 
 
     }
@@ -360,15 +383,17 @@ module.exports = async (req,res)=>{
 
 
 
-    pingBar(
-        140,
+
+    drawPing(
+        145,
         "BOT PING",
         bot,
         "#ff9800"
     );
 
 
-    pingBar(
+
+    drawPing(
         175,
         "MESSAGE PING",
         msg,
@@ -376,8 +401,9 @@ module.exports = async (req,res)=>{
     );
 
 
-    pingBar(
-        210,
+
+    drawPing(
+        205,
         "API PING",
         api,
         "#00e676"
