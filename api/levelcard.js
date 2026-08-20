@@ -1,12 +1,12 @@
 const { createCanvas, loadImage, registerFont } = require("@napi-rs/canvas");
 const path = require("path");
 
-// 1. Font Dosyasını Canvas'a Tescil Etme
+// 1. Font Dosyasını Canvas'a Tescil Etme (fonts/DejaVuSans.ttf)
 const fontPath = path.join(process.cwd(), "fonts", "DejaVuSans.ttf");
 registerFont(fontPath, { family: "DejaVuSans" });
 
 module.exports = async (req, res) => {
-    // Canvas ve Context Kurulumu
+    // 2. Canvas ve Context Kurulumu
     const canvas = createCanvas(900, 270);
     const ctx = canvas.getContext("2d");
 
@@ -21,18 +21,18 @@ module.exports = async (req, res) => {
     // Progress Hesaplama
     const progress = Math.max(0, Math.min(1, xp / nextXP));
 
-    // Arka Plan (Siyah Dış Alan)
+    // 3. Arka Plan (Siyah Dış Alan)
     ctx.fillStyle = "#0c0d10";
     ctx.fillRect(0, 0, 900, 270);
 
-    // Ana Kart (Koyu Gri Yuvarlatılmış Kutucuk)
+    // 4. Ana Kart (Koyu Gri Yuvarlatılmış Kutucuk)
     const cardX = 30, cardY = 25, cardW = 840, cardH = 220, cardR = 18;
     ctx.fillStyle = "#12141d";
     ctx.beginPath();
     ctx.roundRect(cardX, cardY, cardW, cardH, cardR);
     ctx.fill();
 
-    // Avatar Dış Mor Parlaması (Glow)
+    // 5. Avatar Dış Mor Parlaması (Glow)
     const avatarX = 115, avatarY = 135, avatarR = 60;
     ctx.save();
     ctx.shadowColor = "#4d42ec";
@@ -44,7 +44,7 @@ module.exports = async (req, res) => {
     ctx.stroke();
     ctx.restore();
 
-    // Avatar Görseli Çizimi ve Maskeleme
+    // 6. Avatar Görseli Çizimi ve Maskeleme
     try {
         const img = await loadImage(avatarUrl);
         ctx.save();
@@ -150,7 +150,7 @@ module.exports = async (req, res) => {
     ctx.textAlign = "right";
     ctx.fillText(xpText, 805, 205);
 
-    // Yanıtı Çıktı Olarak Gönderme
+    // Yanıtı PNG Görseli Olarak Gönderme
     res.setHeader("Content-Type", "image/png");
     res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
     res.send(await canvas.toBuffer("image/png"));
