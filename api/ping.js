@@ -1,294 +1,472 @@
-const {
-    createCanvas,
-    GlobalFonts
-} = require("@napi-rs/canvas");
-
-const path = require("path");
+const https = require("https");
+const http = require("http");
 
 
-// ===============================
-// FONT
-// ===============================
+// ======================================================
+// NARAKU PING SYSTEM
+// !ping
+// !p
+// ======================================================
 
-try {
 
-    GlobalFonts.registerFromPath(
-        path.join(
-            process.cwd(),
-            "fonts",
-            "DejaVuSans.ttf"
-        ),
-        "DejaVuSans"
-    );
+const PING_CARD_URL =
+    "https://naraku-card-api.vercel.app/api/ping";
 
-} catch (err) {
 
-    console.log(
-        "Font yüklenemedi:",
-        err.message
-    );
+
+const PNG_HEADER =
+    Buffer.from([
+        0x89,
+        0x50,
+        0x4E,
+        0x47,
+        0x0D,
+        0x0A,
+        0x1A,
+        0x0A
+    ]);
+
+
+
+// ======================================================
+// PNG FETCH
+// ======================================================
+
+function fetchPingCard(url){
+
+
+    return new Promise((resolve,reject)=>{
+
+
+        const parsed =
+            new URL(url);
+
+
+
+        const client =
+            parsed.protocol === "https:"
+            ? https
+            : http;
+
+
+
+        const request =
+            client.get(
+                url,
+                {
+                    headers:{
+                        "User-Agent":
+                        "NarakuBot/1.0",
+
+                        "Accept":
+                        "image/png"
+                    }
+                },
+
+                response=>{
+
+
+                    if(
+                        response.statusCode !== 200
+                    ){
+
+                        reject(
+                            new Error(
+                                "HTTP "
+                                +
+                                response.statusCode
+                            )
+                        );
+
+                        return;
+                    }
+
+
+
+                    const chunks=[];
+
+
+
+                    response.on(
+                        "data",
+                        chunk=>{
+                            chunks.push(chunk);
+                        }
+                    );
+
+
+
+                    response.on(
+                        "end",
+                        ()=>{
+
+
+                            const buffer =
+                                Buffer.concat(chunks);
+
+
+
+                            const isPNG =
+                                buffer.length >= 8 &&
+                                buffer
+                                .subarray(0,8)
+                                .equals(
+                                    PNG_HEADER
+                                );
+
+
+
+                            if(!isPNG){
+
+                                reject(
+                                    new Error(
+                                        "PNG değil"
+                                    )
+                                );
+
+                                return;
+                            }
+
+
+
+                            resolve(buffer);
+
+
+                        }
+                    );
+
+
+
+                }
+            );
+
+
+
+        request.on(
+            "error",
+            reject
+        );
+
+
+    });
+
 
 }
 
 
-// ===============================
-// API
-// ===============================
-
-module.exports = async (req,res)=>{
-
-
-    const canvas =
-        createCanvas(
-            900,
-            270
-        );
-
-
-    const ctx =
-        canvas.getContext("2d");
 
 
 
-    // ===============================
-    // VALUES
-    // ===============================
+// ======================================================
+// URL
+// ======================================================
 
-    const botPing =
-        Number(
-            req.query.botPing || 0
-        );
-
-
-    const messagePing =
-        Number(
-            req.query.messagePing || 0
-        );
+function createPingURL(
+    botPing,
+    messagePing,
+    apiPing
+){
 
 
-    const apiPing =
-        Number(
-            req.query.apiPing || 0
-        );
+    const params =
+        new URLSearchParams();
 
 
 
-    // ===============================
-    // BACKGROUND
-    // ===============================
+    params.set(
+        "botPing",
+        botPing
+    );
 
-    ctx.fillStyle="#08090d";
 
-    ctx.fillRect(
-        0,
-        0,
-        900,
-        270
+    params.set(
+        "messagePing",
+        messagePing
+    );
+
+
+    params.set(
+        "apiPing",
+        apiPing
     );
 
 
 
-    // ===============================
-    // CARD
-    // ===============================
-
-    ctx.fillStyle="#12141d";
-
-    ctx.beginPath();
-
-    ctx.roundRect(
-        30,
-        25,
-        840,
-        220,
-        20
-    );
-
-    ctx.fill();
-
-
-
-    // ===============================
-    // TITLE
-    // ===============================
-
-    ctx.textBaseline="middle";
-
-
-    ctx.fillStyle="#ffffff";
-
-    ctx.font=
-        "bold 38px DejaVuSans";
-
-
-    ctx.textAlign="left";
-
-
-    ctx.fillText(
-        "Naraku Ping",
-        70,
-        75
+    return (
+        PING_CARD_URL
+        +
+        "?"
+        +
+        params.toString()
     );
 
 
-
-    // ===============================
-    // STATUS
-    // ===============================
-
-    ctx.fillStyle="#54ff8b";
-
-    ctx.font=
-        "bold 18px DejaVuSans";
+}
 
 
-    ctx.fillText(
-        "● Sistem aktif",
-        70,
-        110
+
+
+
+// ======================================================
+// API PING
+// ======================================================
+
+async function getApiPing(){
+
+
+    const start =
+        Date.now();
+
+
+
+    try{
+
+        await fetch(
+            "https://discord.com/api/v10/gateway"
+        );
+
+
+    }catch{}
+
+
+
+    return (
+        Date.now()
+        -
+        start
     );
 
 
-
-    // ===============================
-    // BOX FUNCTION
-    // ===============================
+}
 
 
-    function box(
-        x,
-        y,
-        title,
-        value,
-        color
-    ){
 
-        ctx.fillStyle="#1b1f2b";
 
-        ctx.beginPath();
 
-        ctx.roundRect(
-            x,
-            y,
-            220,
-            80,
-            14
+// ======================================================
+// BOT PING
+// ======================================================
+
+function getBotPing(bot){
+
+
+    try{
+
+
+        if(
+            bot?.ws?.ping >= 0
+        ){
+
+            return Math.round(
+                bot.ws.ping
+            );
+
+        }
+
+
+    }catch{}
+
+
+
+    return 0;
+
+}
+
+
+
+
+
+// ======================================================
+// SEND PING
+// ======================================================
+
+async function sendPing(
+    message,
+    messagePing
+){
+
+
+    try{
+
+
+        const values = {
+
+
+            botPing:
+            getBotPing(
+                global.narakuBot
+            ),
+
+
+
+            messagePing:
+            Number(
+                messagePing
+            )
+            ||
+            0,
+
+
+
+            apiPing:
+            await getApiPing()
+
+
+        };
+
+
+
+        const url =
+            createPingURL(
+
+                values.botPing,
+
+                values.messagePing,
+
+                values.apiPing
+
+            );
+
+
+
+        console.log(
+            "[PING CARD]",
+            url
         );
 
-        ctx.fill();
+
+
+        const image =
+            await fetchPingCard(
+                url
+            );
 
 
 
-        ctx.fillStyle="#9aa0b5";
+        await message.reply({
 
-        ctx.font=
-            "bold 16px DejaVuSans";
+            files:[
+
+                {
+                    attachment:image,
+
+                    name:
+                    "naraku-ping.png"
+                }
+
+            ],
 
 
-        ctx.textAlign="left";
+            allowedMentions:{
+
+                repliedUser:false
+
+            }
+
+        });
 
 
-        ctx.fillText(
-            title,
-            x+20,
-            y+25
+
+    }catch(err){
+
+
+        console.error(
+            "PING ERROR:",
+            err
         );
 
 
 
-        ctx.fillStyle=color;
+        await message.reply({
+
+            content:
+            "❌ Ping kartı oluşturulamadı.",
 
 
-        ctx.font=
-            "bold 28px DejaVuSans";
+            allowedMentions:{
 
+                repliedUser:false
 
-        ctx.fillText(
-            value+" MS",
-            x+20,
-            y+55
-        );
+            }
+
+        });
 
 
     }
 
 
-
-    // ===============================
-    // PING BOXES
-    // ===============================
-
-
-    box(
-        70,
-        145,
-        "BOT PING",
-        botPing,
-        "#ff9d00"
-    );
-
-
-    box(
-        340,
-        145,
-        "MESAJ PING",
-        messagePing,
-        "#5865ff"
-    );
-
-
-    box(
-        610,
-        145,
-        "API PING",
-        apiPing,
-        "#00e676"
-    );
+}
 
 
 
 
-    // ===============================
-    // FOOTER
-    // ===============================
 
+// ======================================================
+// REGISTER
+// ======================================================
 
-    ctx.fillStyle="#777d95";
-
-    ctx.font=
-        "16px DejaVuSans";
-
-
-    ctx.textAlign="right";
-
-
-    ctx.fillText(
-        "Naraku Network Monitor",
-        820,
-        220
-    );
+module.exports =
+function registerPing(bot){
 
 
 
-    // ===============================
-    // RESPONSE
-    // ===============================
+    if(!bot){
+
+        throw new Error(
+            "Ping sistemi bot yok."
+        );
+
+    }
 
 
-    res.setHeader(
-        "Content-Type",
-        "image/png"
-    );
+
+    global.narakuBot =
+        bot;
 
 
-    res.setHeader(
-        "Cache-Control",
-        "no-cache"
-    );
+
+    global.narakuPing =
+        sendPing;
 
 
-    res.send(
-        canvas.toBuffer("image/png")
+
+
+    bot.command({
+
+        name:"ping",
+
+
+        aliases:[
+            "p"
+        ],
+
+
+
+        code:`
+
+$djsEval[
+(async()=>{
+
+await global.narakuPing(
+
+msg,
+
+$messagePing
+
+);
+
+
+})()
+;false]
+
+`
+
+    });
+
+
+
+    console.log(
+        "✔ Ping sistemi aktif"
     );
 
 
