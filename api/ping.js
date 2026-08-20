@@ -45,6 +45,7 @@ module.exports = async (req,res)=>{
 
 
 
+
     const bot =
         Number(req.query.botPing || 0);
 
@@ -55,6 +56,8 @@ module.exports = async (req,res)=>{
 
     const api =
         Number(req.query.apiPing || 0);
+
+
 
 
 
@@ -74,6 +77,7 @@ module.exports = async (req,res)=>{
         900,
         270
     );
+
 
 
 
@@ -107,14 +111,42 @@ module.exports = async (req,res)=>{
 
 
 
-    ctx.textBaseline="middle";
-
-
-
-
     // ===============================
-    // HEADER
+    // ICON AREA
     // ===============================
+
+
+    const iconX = 115;
+    const iconY = 135;
+
+
+
+    ctx.fillStyle="#5865f2";
+
+
+    ctx.shadowColor="#5865f2";
+
+    ctx.shadowBlur=20;
+
+
+    ctx.beginPath();
+
+
+    ctx.arc(
+        iconX,
+        iconY,
+        60,
+        0,
+        Math.PI*2
+    );
+
+
+    ctx.fill();
+
+
+    ctx.shadowBlur=0;
+
+
 
 
     ctx.fillStyle="#ffffff";
@@ -124,75 +156,46 @@ module.exports = async (req,res)=>{
         "bold 38px DejaVuSans";
 
 
+    ctx.textAlign="center";
+
+
+    ctx.textBaseline="middle";
+
+
+    ctx.fillText(
+        "MS",
+        iconX,
+        iconY
+    );
+
+
+
+
+
+
+
+
+
+    // ===============================
+    // TEXT
+    // ===============================
+
+
     ctx.textAlign="left";
+
+
+
+    ctx.fillStyle="#ffffff";
+
+
+    ctx.font =
+        "bold 38px DejaVuSans";
+
 
 
     ctx.fillText(
         "Ping Durumu",
-        70,
-        75
-    );
-
-
-
-
-
-    ctx.fillStyle="#8b93ad";
-
-
-    ctx.font =
-        "18px DejaVuSans";
-
-
-    ctx.fillText(
-        "Discord bağlantı gecikmesi",
-        70,
-        112
-    );
-
-
-
-
-
-
-
-    // ===============================
-    // STATUS
-    // ===============================
-
-
-    ctx.fillStyle="#00e676";
-
-
-    ctx.beginPath();
-
-
-    ctx.arc(
-        780,
-        80,
-        8,
-        0,
-        Math.PI*2
-    );
-
-
-    ctx.fill();
-
-
-
-    ctx.fillStyle="#00e676";
-
-
-    ctx.font =
-        "bold 16px DejaVuSans";
-
-
-    ctx.textAlign="right";
-
-
-    ctx.fillText(
-        "ONLINE",
-        750,
+        200,
         80
     );
 
@@ -201,72 +204,82 @@ module.exports = async (req,res)=>{
 
 
 
+    // STATUS
+
+
+    ctx.textAlign="right";
+
+
+    ctx.fillStyle="#00e676";
+
+
+    ctx.font =
+        "bold 18px DejaVuSans";
+
+
+
+    ctx.fillText(
+        "ONLINE",
+        805,
+        60
+    );
+
+
+
+
+
+
+    ctx.fillStyle="#ff9800";
+
+
+    ctx.font =
+        "bold 32px DejaVuSans";
+
+
+
+    ctx.fillText(
+        "DISCORD",
+        805,
+        100
+    );
+
+
+
+
+
+
 
     // ===============================
-    // STATUS LINE
+    // PING BAR
     // ===============================
 
 
-    function pingLine(
+    function pingBar(
         y,
         title,
-        value
+        value,
+        color
     ){
-
-
-        let color =
-            value <= 100
-            ? "#00e676"
-            :
-            value <= 250
-            ? "#ff9800"
-            :
-            "#ff3d3d";
-
-
 
 
         ctx.textAlign="left";
 
 
-        ctx.fillStyle="#8f96ad";
+        ctx.fillStyle="#7c839b";
 
 
         ctx.font =
             "bold 16px DejaVuSans";
 
 
+
         ctx.fillText(
             title,
-            70,
+            200,
             y
         );
 
 
-
-
-        ctx.textAlign="right";
-
-
-        ctx.fillStyle=color;
-
-
-        ctx.font =
-            "bold 20px DejaVuSans";
-
-
-        ctx.fillText(
-            value+" MS",
-            820,
-            y
-        );
-
-
-
-
-
-
-        // BAR
 
 
         ctx.fillStyle="#0d1117";
@@ -276,16 +289,28 @@ module.exports = async (req,res)=>{
 
 
         ctx.roundRect(
-            70,
+            200,
             y+18,
-            750,
-            10,
-            5
+            500,
+            22,
+            6
         );
 
 
         ctx.fill();
 
+
+
+
+
+        let width =
+            Math.max(
+                15,
+                Math.min(
+                    500,
+                    value * 3
+                )
+            );
 
 
 
@@ -296,22 +321,36 @@ module.exports = async (req,res)=>{
 
 
         ctx.roundRect(
-            70,
+            200,
             y+18,
-            Math.min(
-                750,
-                Math.max(
-                    40,
-                    value*2
-                )
-            ),
-            10,
-            5
+            width,
+            22,
+            6
         );
 
 
         ctx.fill();
 
+
+
+
+
+
+        ctx.textAlign="right";
+
+
+        ctx.fillStyle="#ffffff";
+
+
+        ctx.font =
+            "bold 20px DejaVuSans";
+
+
+        ctx.fillText(
+            value+" MS",
+            805,
+            y+30
+        );
 
 
     }
@@ -321,25 +360,27 @@ module.exports = async (req,res)=>{
 
 
 
-
-    pingLine(
-        145,
-        "BOT GECİKMESİ",
-        bot
+    pingBar(
+        140,
+        "BOT PING",
+        bot,
+        "#ff9800"
     );
 
 
-    pingLine(
-        185,
-        "MESAJ GECİKMESİ",
-        msg
+    pingBar(
+        175,
+        "MESSAGE PING",
+        msg,
+        "#5865f2"
     );
 
 
-    pingLine(
-        225,
-        "API GECİKMESİ",
-        api
+    pingBar(
+        210,
+        "API PING",
+        api,
+        "#00e676"
     );
 
 
@@ -363,6 +404,7 @@ module.exports = async (req,res)=>{
         "Cache-Control",
         "no-cache"
     );
+
 
 
     res.send(
