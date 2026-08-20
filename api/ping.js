@@ -1,35 +1,36 @@
-const { createCanvas, registerFont } = require("@napi-rs/canvas");
+const { 
+    createCanvas,
+    registerFont
+} = require("@napi-rs/canvas");
+
 const path = require("path");
 
 
-// ======================================================
 // FONT
-// ======================================================
-
-const fontPath =
-    path.join(
-        process.cwd(),
-        "fonts",
-        "DejaVuSans.ttf"
-    );
-
 
 try {
 
     registerFont(
-        fontPath,
+        path.join(
+            process.cwd(),
+            "fonts",
+            "DejaVuSans.ttf"
+        ),
         {
             family:"DejaVuSans"
         }
     );
 
-}catch{}
+} catch(e){
+
+    console.log(
+        "Font yüklenemedi",
+        e
+    );
+
+}
 
 
-
-// ======================================================
-// ROUND RECT
-// ======================================================
 
 function roundRect(
     ctx,
@@ -59,120 +60,23 @@ function roundRect(
 
 
 
-// ======================================================
-// BAR
-// ======================================================
-
-function drawBar(
-    ctx,
-    x,
-    y,
-    width,
-    value
-){
-
-    const max = 500;
-
-
-    roundRect(
-        ctx,
-        x,
-        y,
-        width,
-        18,
-        10,
-        "#202531"
-    );
-
-
-
-    const progress =
-        Math.min(
-            value / max,
-            1
-        );
-
-
-
-    const fill =
-        Math.max(
-            15,
-            width * progress
-        );
-
-
-
-    const gradient =
-        ctx.createLinearGradient(
-            x,
-            0,
-            x + width,
-            0
-        );
-
-
-    gradient.addColorStop(
-        0,
-        "#00ff88"
-    );
-
-
-    gradient.addColorStop(
-        0.5,
-        "#00c6ff"
-    );
-
-
-    gradient.addColorStop(
-        1,
-        "#7b5cff"
-    );
-
-
-
-    ctx.fillStyle =
-        gradient;
-
-
-
-    ctx.beginPath();
-
-    ctx.roundRect(
-        x,
-        y,
-        fill,
-        18,
-        10
-    );
-
-    ctx.fill();
-
-
-}
-
-
-
-// ======================================================
-// API
-// ======================================================
-
 
 module.exports = async(req,res)=>{
 
 
-    const bot =
+    const botPing =
         Number(
             req.query.botPing || 0
         );
 
 
-    const msg =
+    const messagePing =
         Number(
             req.query.messagePing || 0
         );
 
 
-    const api =
+    const apiPing =
         Number(
             req.query.apiPing || 0
         );
@@ -193,8 +97,7 @@ module.exports = async(req,res)=>{
 
     // BACKGROUND
 
-    ctx.fillStyle =
-        "#08090d";
+    ctx.fillStyle="#08090d";
 
     ctx.fillRect(
         0,
@@ -205,8 +108,7 @@ module.exports = async(req,res)=>{
 
 
 
-
-    // OUTER CARD
+    // CARD
 
     roundRect(
         ctx,
@@ -218,9 +120,6 @@ module.exports = async(req,res)=>{
         "#252938"
     );
 
-
-
-    // INNER CARD
 
     roundRect(
         ctx,
@@ -234,15 +133,15 @@ module.exports = async(req,res)=>{
 
 
 
-
     // TITLE
 
-    ctx.fillStyle =
-        "#ffffff";
-
+    ctx.fillStyle="#ffffff";
 
     ctx.font =
-        "bold 34px DejaVuSans";
+        "bold 36px DejaVuSans";
+
+
+    ctx.textAlign="left";
 
 
     ctx.fillText(
@@ -253,44 +152,37 @@ module.exports = async(req,res)=>{
 
 
 
-    ctx.fillStyle =
-        "#7c839b";
-
+    ctx.fillStyle="#8d93a8";
 
     ctx.font =
         "20px DejaVuSans";
 
 
     ctx.fillText(
-        "Discord bağlantı durumu",
+        "Network bağlantı sonuçları",
         70,
         115
     );
 
 
 
-
-
-    // VALUES
-
-
-    const items = [
+    const data=[
 
         {
             name:"BOT PING",
-            value:bot,
+            value:botPing,
             y:155
         },
 
         {
-            name:"MESSAGE PING",
-            value:msg,
+            name:"MESAJ PING",
+            value:messagePing,
             y:195
         },
 
         {
             name:"API PING",
-            value:api,
+            value:apiPing,
             y:235
         }
 
@@ -298,12 +190,12 @@ module.exports = async(req,res)=>{
 
 
 
-    items.forEach(item=>{
+    for(
+        const item of data
+    ){
 
 
-        ctx.fillStyle =
-            "#ffffff";
-
+        ctx.fillStyle="#ffffff";
 
         ctx.font =
             "bold 18px DejaVuSans";
@@ -317,12 +209,13 @@ module.exports = async(req,res)=>{
 
 
 
-        ctx.fillStyle =
-            "#ff9d00";
+        ctx.fillStyle="#ff9d00";
+
+        ctx.textAlign="right";
 
 
-        ctx.textAlign =
-            "right";
+        ctx.font =
+            "bold 20px DejaVuSans";
 
 
         ctx.fillText(
@@ -332,33 +225,79 @@ module.exports = async(req,res)=>{
         );
 
 
-        ctx.textAlign =
-            "left";
+
+        ctx.textAlign="left";
 
 
 
-        drawBar(
+        // BAR
+
+
+        roundRect(
             ctx,
             250,
-            item.y-15,
-            520,
-            item.value
+            item.y-17,
+            400,
+            12,
+            8,
+            "#252a35"
         );
 
 
 
-    });
+        const percent =
+            Math.min(
+                item.value / 500,
+                1
+            );
+
+
+        const width =
+            Math.max(
+                10,
+                400 * percent
+            );
+
+
+
+        const gradient =
+            ctx.createLinearGradient(
+                250,
+                0,
+                650,
+                0
+            );
+
+
+        gradient.addColorStop(
+            0,
+            "#ff7b00"
+        );
+
+
+        gradient.addColorStop(
+            1,
+            "#ffcc00"
+        );
+
+
+
+        roundRect(
+            ctx,
+            250,
+            item.y-17,
+            width,
+            12,
+            8,
+            gradient
+        );
+
+    }
 
 
 
 
-
-    // FOOTER
-
-
-    ctx.fillStyle =
-        "#7c839b";
-
+    ctx.fillStyle="#7c839b";
 
     ctx.font =
         "16px DejaVuSans";
@@ -372,23 +311,14 @@ module.exports = async(req,res)=>{
 
 
 
-
     res.setHeader(
         "Content-Type",
         "image/png"
     );
 
 
-    res.setHeader(
-        "Cache-Control",
-        "no-cache"
-    );
-
-
-
     res.send(
         canvas.toBuffer("image/png")
     );
-
 
 };
