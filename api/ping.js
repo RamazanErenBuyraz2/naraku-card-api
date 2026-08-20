@@ -60,14 +60,11 @@ module.exports = async (req,res)=>{
 
 
 
-
     // ===============================
     // BACKGROUND
     // ===============================
 
-
     ctx.fillStyle="#0c0d10";
-
 
     ctx.fillRect(
         0,
@@ -80,12 +77,9 @@ module.exports = async (req,res)=>{
 
 
 
-
-
     // ===============================
     // CARD
     // ===============================
-
 
     ctx.fillStyle="#12141d";
 
@@ -109,10 +103,8 @@ module.exports = async (req,res)=>{
 
 
 
-
-
     // ===============================
-    // ICON
+    // LEFT ICON
     // ===============================
 
 
@@ -125,9 +117,7 @@ module.exports = async (req,res)=>{
 
 
     ctx.shadowColor="#5865f2";
-
     ctx.shadowBlur=20;
-
 
 
     ctx.beginPath();
@@ -138,12 +128,11 @@ module.exports = async (req,res)=>{
         iconY,
         58,
         0,
-        Math.PI*2
+        Math.PI * 2
     );
 
 
     ctx.fill();
-
 
 
     ctx.shadowBlur=0;
@@ -151,8 +140,7 @@ module.exports = async (req,res)=>{
 
 
 
-
-    ctx.fillStyle="#ffffff";
+    ctx.fillStyle="#fff";
 
 
     ctx.font =
@@ -177,41 +165,44 @@ module.exports = async (req,res)=>{
 
 
 
-
-
     // ===============================
-    // PING ROW
+    // METRIC FUNCTION
     // ===============================
 
 
-    function pingRow(
-        y,
+    function metric(
+        x,
         title,
         value,
         color
     ){
 
 
-        ctx.textAlign="left";
+        ctx.textAlign="center";
 
 
-        ctx.fillStyle="#ffffff";
+
+        // TITLE
+
+
+        ctx.fillStyle="#8b93ad";
 
 
         ctx.font =
-            "bold 22px DejaVuSans";
+            "bold 16px DejaVuSans";
 
 
         ctx.fillText(
             title,
-            220,
-            y
+            x,
+            95
         );
 
 
 
 
-        // durum noktası
+
+        // DOT
 
 
         ctx.fillStyle=color;
@@ -221,9 +212,9 @@ module.exports = async (req,res)=>{
 
 
         ctx.arc(
-            500,
-            y-6,
-            7,
+            x,
+            140,
+            10,
             0,
             Math.PI*2
         );
@@ -236,20 +227,20 @@ module.exports = async (req,res)=>{
 
 
 
-        ctx.textAlign="right";
+        // VALUE
 
 
         ctx.fillStyle="#ffffff";
 
 
         ctx.font =
-            "bold 28px DejaVuSans";
+            "bold 30px DejaVuSans";
 
 
         ctx.fillText(
             value + " MS",
-            800,
-            y
+            x,
+            195
         );
 
 
@@ -262,42 +253,43 @@ module.exports = async (req,res)=>{
 
 
 
-    pingRow(
-        105,
-        "BOT PING",
+    metric(
+        330,
+        "BOT",
         bot,
         bot < 100
             ? "#00e676"
             : bot < 200
                 ? "#ff9800"
-                : "#ff3d3d"
+                : "#ff3b3b"
     );
 
 
 
-    pingRow(
-        155,
-        "MESSAGE PING",
+    metric(
+        520,
+        "MESSAGE",
         msg,
         msg < 100
             ? "#00e676"
             : msg < 200
                 ? "#ff9800"
-                : "#ff3d3d"
+                : "#ff3b3b"
     );
 
 
 
-    pingRow(
-        205,
-        "API PING",
+    metric(
+        710,
+        "API",
         api,
         api < 100
             ? "#00e676"
             : api < 200
                 ? "#ff9800"
-                : "#ff3d3d"
+                : "#ff3b3b"
     );
+
 
 
 
