@@ -3,29 +3,26 @@ const {
 } = require("@napi-rs/canvas");
 
 
-
-module.exports = async (req,res)=>{
-
-
-    const canvas =
-        createCanvas(
-            900,
-            270
-        );
+module.exports = async (req, res) => {
 
 
-    const ctx =
-        canvas.getContext("2d");
+    const canvas = createCanvas(
+        900,
+        270
+    );
+
+
+    const ctx = canvas.getContext("2d");
 
 
 
-    const bot =
+    const botPing =
         Number(req.query.botPing || 0);
 
-    const msg =
+    const messagePing =
         Number(req.query.messagePing || 0);
 
-    const api =
+    const apiPing =
         Number(req.query.apiPing || 0);
 
 
@@ -35,7 +32,7 @@ module.exports = async (req,res)=>{
     // =========================
 
 
-    ctx.fillStyle="#08090f";
+    ctx.fillStyle = "#080a10";
 
     ctx.fillRect(
         0,
@@ -47,23 +44,24 @@ module.exports = async (req,res)=>{
 
 
     // =========================
-    // CARD GLOW
+    // MAIN CARD
     // =========================
 
 
     ctx.save();
 
-    ctx.shadowColor="#5865f2";
-    ctx.shadowBlur=35;
+    ctx.shadowColor = "#5865f2";
+    ctx.shadowBlur = 25;
 
-    ctx.fillStyle="#11141d";
+
+    ctx.fillStyle = "#11141d";
 
     ctx.beginPath();
 
     ctx.roundRect(
-        30,
+        35,
         25,
-        840,
+        830,
         220,
         22
     );
@@ -75,47 +73,64 @@ module.exports = async (req,res)=>{
 
 
 
+    ctx.textBaseline = "middle";
+
+
+
     // =========================
     // HEADER
     // =========================
 
 
-    ctx.textBaseline="middle";
+    ctx.textAlign="left";
 
 
     ctx.fillStyle="#ffffff";
 
-    ctx.font=
-        "bold 38px Arial";
-
-
-    ctx.textAlign="left";
+    ctx.font =
+        "bold 34px Arial";
 
 
     ctx.fillText(
-        "Naraku Network Monitor",
-        70,
+        "Ping",
+        75,
         75
     );
 
 
 
-    ctx.fillStyle="#8b93ad";
+    ctx.fillStyle="#8991aa";
 
-    ctx.font=
+    ctx.font =
         "18px Arial";
 
 
     ctx.fillText(
-        "Discord bağlantı durumu",
-        70,
-        112
+        "Bağlantı değerleri",
+        75,
+        110
     );
 
 
 
 
-    // STATUS DOT
+    // ONLINE BADGE
+
+
+    ctx.fillStyle="#14251c";
+
+    ctx.beginPath();
+
+    ctx.roundRect(
+        720,
+        55,
+        110,
+        35,
+        15
+    );
+
+    ctx.fill();
+
 
 
     ctx.fillStyle="#00e676";
@@ -123,9 +138,9 @@ module.exports = async (req,res)=>{
     ctx.beginPath();
 
     ctx.arc(
-        780,
-        80,
-        8,
+        745,
+        72,
+        6,
         0,
         Math.PI*2
     );
@@ -136,28 +151,28 @@ module.exports = async (req,res)=>{
 
     ctx.fillStyle="#00e676";
 
-    ctx.font=
-        "bold 16px Arial";
+    ctx.font =
+        "bold 15px Arial";
 
 
-    ctx.textAlign="right";
+    ctx.textAlign="center";
 
 
     ctx.fillText(
         "ONLINE",
-        750,
-        80
+        785,
+        72
     );
 
 
 
 
     // =========================
-    // BOX FUNCTION
+    // BOX
     // =========================
 
 
-    function pingBox(
+    function createBox(
         x,
         title,
         value,
@@ -165,7 +180,7 @@ module.exports = async (req,res)=>{
     ){
 
 
-        ctx.fillStyle="#181c27";
+        ctx.fillStyle="#191d29";
 
 
         ctx.beginPath();
@@ -175,74 +190,67 @@ module.exports = async (req,res)=>{
             150,
             220,
             65,
-            14
+            15
         );
 
         ctx.fill();
 
 
 
-        // title
-
         ctx.textAlign="left";
 
 
-        ctx.fillStyle="#8f96ad";
+        ctx.fillStyle="#8b92a8";
 
-        ctx.font=
+        ctx.font =
             "bold 14px Arial";
 
 
         ctx.fillText(
             title,
-            x+18,
+            x+20,
             172
         );
 
 
 
-        // value
-
-
         ctx.fillStyle=color;
 
-        ctx.font=
-            "bold 28px Arial";
+        ctx.font =
+            "bold 27px Arial";
 
 
         ctx.fillText(
             value+" MS",
-            x+18,
+            x+20,
             202
         );
-
 
 
     }
 
 
 
-
-    pingBox(
-        70,
-        "BOT PING",
-        bot,
-        "#ff9800"
+    createBox(
+        75,
+        "BOT",
+        botPing,
+        "#ff9d00"
     );
 
 
-    pingBox(
+    createBox(
         340,
-        "MESSAGE PING",
-        msg,
+        "MESSAGE",
+        messagePing,
         "#5865f2"
     );
 
 
-    pingBox(
-        610,
-        "API PING",
-        api,
+    createBox(
+        605,
+        "API",
+        apiPing,
         "#00e676"
     );
 
@@ -250,27 +258,8 @@ module.exports = async (req,res)=>{
 
 
     // =========================
-    // FOOTER
+    // RESPONSE
     // =========================
-
-
-    ctx.textAlign="right";
-
-
-    ctx.fillStyle="#656b80";
-
-    ctx.font=
-        "15px Arial";
-
-
-    ctx.fillText(
-        "Automatic monitoring system",
-        820,
-        235
-    );
-
-
-
 
 
     res.setHeader(
@@ -281,12 +270,13 @@ module.exports = async (req,res)=>{
 
     res.setHeader(
         "Cache-Control",
-        "no-store"
+        "no-store, no-cache"
     );
 
 
     res.send(
         canvas.toBuffer("image/png")
     );
+
 
 };
